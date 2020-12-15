@@ -1,30 +1,42 @@
-import 'dart:convert';
+class RestaurantResult {
+  List<Resto> restaurants;
 
-import 'restaurant.dart';
+  RestaurantResult({this.restaurants});
 
-class Response {
-  List<Restaurant> restaurants;
-  Response({this.restaurants});
-
-  factory Response.fromJson(Map<String, dynamic> parsedJson) {
+  factory RestaurantResult.fromJson(Map<String, dynamic> parsedJson) {
     var listRestaurant  = parsedJson['restaurants'] as List;
-    List<Restaurant> restaurantList;
+    List<Resto> restaurantList;
     if (listRestaurant != null) {
-      restaurantList  = listRestaurant.map((i) => Restaurant.fromJson(i)).toList();
+      restaurantList  = listRestaurant.map((i) => Resto.fromJson(i)).toList();
     }
-    return Response(
-        restaurants: restaurantList,
+    return RestaurantResult(
+      restaurants: restaurantList,
     );
   }
 }
 
-Response parseLocal(var response) {
-  dynamic jsonObject = json.decode(response);
-  return Response.fromJson(jsonObject);
+class Resto {
+  String id;
+  String name;
+  String description;
+  String pictureId;
+  String city;
+  double rating;
+
+  Resto({this.id, this.name, this.description, this.pictureId, this.city,
+  this.rating});
+
+  factory Resto.fromJson(Map<String, dynamic> parsedJson) {
+    return Resto(
+      id: parsedJson['id'],
+      name: parsedJson['name'],
+      description: parsedJson['description'],
+      pictureId: parsedJson['pictureId'],
+      city: parsedJson['city'],
+      rating: parsedJson['rating'].toDouble(),
+    );
+  }
 }
-
-
-
 
 
 

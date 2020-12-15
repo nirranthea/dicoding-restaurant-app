@@ -1,27 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:restaurant_app/data/api/api_service.dart';
+import 'package:restaurant_app/provider/restaurant_provider.dart';
 import 'package:restaurant_app/ui/detail_page.dart';
+import 'package:restaurant_app/ui/search_page.dart';
 import '../data/model/response.dart';
-import '../data/model/restaurant.dart';
 
 class HomePage extends StatelessWidget {
 
   static const routeName = '/home_page';
 
-  Future<String> _loadAsset(BuildContext context) async {
-    return await DefaultAssetBundle.of(context).loadString('assets/local_restaurant.json');
-  }
-
-  Future<List<Restaurant>> _loadRestaurants(BuildContext context) async {
-    String jsonString = await _loadAsset(context);
-    return parseLocal(jsonString).restaurants;
-  }
-
-  Widget _buildRestaurantItem(BuildContext context, Restaurant restaurant) {
+  Widget _buildRestaurantItem(BuildContext context, Resto restaurant) {
     return ListTile(
       contentPadding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
       leading: Hero(
           tag: restaurant.pictureId,
-          child: Image.network(restaurant.pictureId, width: 100, fit: BoxFit.cover,)),
+          child: Image.network(ApiService.imageUrl + restaurant.pictureId, width: 100, fit: BoxFit.cover,)),
       title: Text(restaurant.name,
         style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),),
       subtitle: Column(
@@ -81,27 +75,38 @@ class HomePage extends StatelessWidget {
                     subtitle: Text('Recommendation restaurant for you!',
                       style: Theme.of(context).textTheme.subtitle2,
                     ),
+                    trailing: IconButton(
+                      icon: Icon(Icons.search),
+                      iconSize: 24,
+                      color: Colors.black,
+                      onPressed: () {
+                        Navigator.pushNamed(context, SearchPage.routeName);
+                      },
+                    ),
                   ),
                 ),
               ),
             ),
             //NOTE: Content part
             Expanded(
-              child: FutureBuilder<List<Restaurant>>(
-                future: _loadRestaurants(context),
-                builder: (context, snapshot) {
-                  List<Restaurant> restaurants = snapshot.data;
-                  if (snapshot.hasData) {
-                    return ListView.builder(
-                      itemCount: restaurants.length,
-                      itemBuilder: (context, index) {
-                        return _buildRestaurantItem(context, restaurants[index]);
-                      },
-                    );
-                  } else if (snapshot.hasError) {
-                    return Center(child: Text('Load Data Error. Please Restart App'),);
-                  } else {
+              child: Consumer<RestaurantsProvider>(
+                builder: (context, state, _) {
+                  if (state.state == ResultState.Loading) {
                     return Center(child: CircularProgressIndicator());
+                  } else if (state.state == ResultState.HasData) {
+                    return ListView.builder(
+                        shrinkWrap: true,
+                        itemCount: state.result.restaurants.length,
+                        itemBuilder: (context, index) {
+                          var restaurant = state.result.restaurants[index];
+                          return _buildRestaurantItem(context, restaurant);
+                        });
+                  } else if (state.state == ResultState.NoData) {
+                    return Center(child: Text(state.message));
+                  } else if (state.state == ResultState.Error) {
+                    return Center(child: Text(state.message));
+                  } else {
+                    return Center(child: Text(''));
                   }
                 },
               ),
