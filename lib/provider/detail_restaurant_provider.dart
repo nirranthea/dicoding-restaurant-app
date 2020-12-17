@@ -1,16 +1,17 @@
+import 'dart:io';
+
 import 'package:flutter/foundation.dart';
+import 'package:restaurant_app/common/result_state.dart';
 import 'package:restaurant_app/data/api/api_service.dart';
 import 'package:restaurant_app/data/model/response.dart';
 import 'package:restaurant_app/data/model/restaurant.dart';
-
-enum ResultState {Loading, NoData, HasData, Error}
 
 class DetailRestaurantsProvider extends ChangeNotifier {
   final ApiService apiService;
   final Resto resto;
 
   DetailRestaurantsProvider({@required this.apiService, @required this.resto}) {
-    _fetchDetailRestaurant(resto);
+    fetchDetailRestaurant(resto);
   }
 
   DetailRestaurant _detailRestaurant;
@@ -21,7 +22,7 @@ class DetailRestaurantsProvider extends ChangeNotifier {
   DetailRestaurant get result => _detailRestaurant;
   ResultState get state => _state;
 
-  Future<dynamic> _fetchDetailRestaurant(Resto resto) async {
+  Future<dynamic> fetchDetailRestaurant(Resto resto) async {
     try {
       _state = ResultState.Loading;
       notifyListeners();
@@ -35,6 +36,10 @@ class DetailRestaurantsProvider extends ChangeNotifier {
         notifyListeners();
         return _detailRestaurant = restaurants;
       }
+    } on SocketException {
+      _state = ResultState.Error;
+      notifyListeners();
+      return _message = 'Periksa Koneksi Internet Anda!';
     } catch (e) {
       _state = ResultState.Error;
       notifyListeners();

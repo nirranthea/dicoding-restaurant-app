@@ -1,8 +1,9 @@
+import 'dart:io';
+
 import 'package:flutter/foundation.dart';
+import 'package:restaurant_app/common/result_state.dart';
 import 'package:restaurant_app/data/api/api_service.dart';
 import 'package:restaurant_app/data/model/response.dart';
-
-enum ResultState {Loading, NoData, HasData, Error}
 
 class RestaurantsProvider extends ChangeNotifier {
   final ApiService apiService;
@@ -33,6 +34,10 @@ class RestaurantsProvider extends ChangeNotifier {
         notifyListeners();
         return _restaurantsResult = restaurants;
       }
+    } on SocketException {
+      _state = ResultState.Error;
+      notifyListeners();
+      return _message = 'Periksa Koneksi Internet Anda!';
     } catch (e) {
       _state = ResultState.Error;
       notifyListeners();

@@ -1,7 +1,11 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:restaurant_app/common/result_state.dart';
 import 'package:restaurant_app/data/api/api_service.dart';
 import 'package:restaurant_app/data/model/customer_reviews.dart';
+import 'package:restaurant_app/data/model/post_review.dart';
 import 'package:restaurant_app/data/model/response.dart';
 import 'package:restaurant_app/provider/detail_restaurant_provider.dart';
 
@@ -10,7 +14,45 @@ class DetailPage extends StatelessWidget {
   static const routeName = '/restaurant_detail';
 
   final Resto restaurant;
-  const DetailPage({@required this.restaurant});
+  DetailPage({@required this.restaurant});
+
+  final _nameCtrl   = TextEditingController();
+  final _reviewCtrl = TextEditingController();
+  final _nameFcs    = FocusNode();
+  final _reviewFcs  = FocusNode();
+  final _scaffoldKey   = GlobalKey<ScaffoldState>();
+
+  Future<PostReview> postingReview(Resto resto, String name, String review) async {
+    final _apiService = ApiService();
+    try {
+      final reviews = await _apiService.postReview(resto.id, name, review);
+      return reviews;
+    } on SocketException {
+      String _message = 'Periksa Koneksi Internet Anda!';
+      return PostReview(error: true, message: _message);
+    } catch (e) {
+      String _message = 'Error -> $e';
+      return PostReview(error: true, message: _message);
+    }
+  }
+
+  _submitReview(DetailRestaurantsProvider state, Resto resto, String name, String review) {
+
+    postingReview(resto, name, review).then((value) {
+      if (value.error) {
+        _scaffoldKey.currentState.hideCurrentSnackBar();
+        _scaffoldKey.currentState.showSnackBar(SnackBar(
+          content: Text('Periksa koneksi Internet Anda !')));
+      } else {
+        _nameCtrl.text = '';
+        _reviewCtrl.text = '';
+        state.fetchDetailRestaurant(resto);
+        _scaffoldKey.currentState.hideCurrentSnackBar();
+        _scaffoldKey.currentState.showSnackBar(SnackBar(
+            content: Text('Review Anda berhasil ditambahkan')));
+      }
+    });
+  }
 
   _buildReview(BuildContext context, CustomerReviews review) {
     return ListTile(
@@ -31,7 +73,9 @@ class DetailPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final detailState = Provider.of<DetailRestaurantsProvider>(context);
     return Scaffold(
+      key: _scaffoldKey,
       body: CustomScrollView(
         slivers: <Widget>[
           //NOTE: Header part
@@ -275,6 +319,69 @@ class DetailPage extends StatelessWidget {
                         return Center(child: Text(''));
                       }
                     },
+                  ),
+                  //NOTE: Add Review
+                  Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(8),
+                      color: Colors.grey[300],
+                    ),
+                    padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        Text('Tuliskan review Anda', style: TextStyle(
+                          fontSize: 16,
+                        )),
+                        TextFormField(
+                          focusNode: _nameFcs,
+                          controller: _nameCtrl,
+                          keyboardType: TextInputType.text,
+                          textInputAction: TextInputAction.next,
+                          maxLength: 30,
+                          decoration: InputDecoration(
+                            labelText: 'Nama',
+                            counterText: '',
+                          ),
+                          onFieldSubmitted: (value) {
+                            FocusScope.of(context).unfocus();
+                            FocusScope.of(context).requestFocus(_reviewFcs);
+                          },
+                        ),
+                        TextFormField(
+                          focusNode: _reviewFcs,
+                          controller: _reviewCtrl,
+                          keyboardType: TextInputType.multiline,
+                          textInputAction: TextInputAction.done,
+                          maxLines: null,
+                          maxLength: 100,
+                          decoration: InputDecoration(
+                            labelText: 'Review',
+                          ),
+                        ),
+                        SizedBox(height: 8),
+                        Align(
+                          alignment: Alignment.bottomRight,
+                          child: RaisedButton(
+                            color: Colors.green,
+                            textColor: Colors.white,
+                            child: Text('Kirim'),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            onPressed: () {
+                              FocusScope.of(context).unfocus();
+                              _submitReview(
+                                detailState,
+                                restaurant,
+                                _nameCtrl.text,
+                                _reviewCtrl.text,
+                              );
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ),
