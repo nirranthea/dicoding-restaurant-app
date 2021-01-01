@@ -22,6 +22,8 @@ class DetailPage extends StatelessWidget {
 
   _submitReview(ReviewRestaurantProvider state,
       Resto resto, String name, String review) {
+    _nameCtrl.clear();
+    _reviewCtrl.clear();
     state.postReviewRestaurant(resto, name, review);
   }
 

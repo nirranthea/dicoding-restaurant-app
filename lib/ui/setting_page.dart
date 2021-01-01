@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:restaurant_app/provider/preferences_provider.dart';
 import 'package:restaurant_app/provider/scheduling_provider.dart';
 
 class SettingPage extends StatelessWidget {
@@ -47,22 +48,27 @@ class SettingPage extends StatelessWidget {
             ),
             //NOTE: Content part
             Expanded(
-              child: ListView(
-                children: <Widget>[
-                  ListTile(
-                    title: Text('Restaurant Notification'),
-                    trailing: Consumer<SchedulingProvider>(
-                      builder: (context, scheduled, _) {
-                        return Switch.adaptive(
-                            value: scheduled.isScheduled,
-                            onChanged: (value) async {
-                              scheduled.scheduledResto(value);
-                            },
-                        );
-                      },
-                    ),
-                  ),
-                ],
+              child: Consumer<PreferencesProvider>(
+                builder: (context, provider, child) {
+                  return ListView(
+                    children: <Widget>[
+                      ListTile(
+                        title: Text('Restaurant Notification'),
+                        trailing: Consumer<SchedulingProvider>(
+                          builder: (context, scheduled, _) {
+                            return Switch.adaptive(
+                              value: provider.isDailyRestaurantActive,
+                              onChanged: (value) async {
+                                scheduled.scheduledResto(value);
+                                provider.enableDailyRestaurant(value);
+                              },
+                            );
+                          },
+                        ),
+                      ),
+                    ],
+                  );
+                },
               ),
             ),
           ],
