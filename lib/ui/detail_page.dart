@@ -261,34 +261,6 @@ class DetailPage extends StatelessWidget {
                   //NOTE: Review
                   Consumer2<DetailRestaurantsProvider, ReviewRestaurantProvider>(
                     builder: (context, stateDetail, stateReview, _) {
-//                        if (stateDetail.state == ResultState.Loading) {
-//                          return Center(child: CircularProgressIndicator());
-//                        } else if (stateDetail.state == ResultState.HasData) {
-//                          return ListView.separated(
-//                              padding: EdgeInsets.symmetric(vertical: 16.0),
-//                              physics: NeverScrollableScrollPhysics(),
-//                              shrinkWrap: true,
-//                              itemCount: stateDetail.result.restaurant.customerReviews.length,
-//                              separatorBuilder: (context, index) {
-//                                return Padding(
-//                                  padding: const EdgeInsets.symmetric(horizontal: 4.0),
-//                                  child: Divider(
-//                                      color: Colors.grey[300],
-//                                      thickness: 1,
-//                                      height: 0),
-//                                );
-//                              },
-//                              itemBuilder: (context, index) {
-//                                var review = stateDetail.result.restaurant.customerReviews[index];
-//                                return _buildReview(context, review);
-//                              });
-//                        } else if (stateDetail.state == ResultState.NoData) {
-//                          return Center(child: Text(stateDetail.message));
-//                        } else if (stateDetail.state == ResultState.Error) {
-//                          return Center(child: Text(stateDetail.message));
-//                        } else {
-//                          return Center(child: Text(''));
-//                        }
                       if (stateReview.state == ResultState.Loading || stateDetail.state == ResultState.Loading) {
                         return Center(child: CircularProgressIndicator());
                       } else if (stateReview.state == ResultState.HasData) {
