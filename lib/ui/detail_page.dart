@@ -1,13 +1,11 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:restaurant_app/common/result_state.dart';
 import 'package:restaurant_app/data/api/api_service.dart';
 import 'package:restaurant_app/data/model/customer_reviews.dart';
-import 'package:restaurant_app/data/model/post_review.dart';
 import 'package:restaurant_app/data/model/response.dart';
 import 'package:restaurant_app/provider/detail_restaurant_provider.dart';
+import 'package:restaurant_app/provider/review_restaurant_provider.dart';
 
 class DetailPage extends StatelessWidget {
 
@@ -22,36 +20,9 @@ class DetailPage extends StatelessWidget {
   final _reviewFcs  = FocusNode();
   final _scaffoldKey   = GlobalKey<ScaffoldState>();
 
-  Future<PostReview> postingReview(Resto resto, String name, String review) async {
-    final _apiService = ApiService();
-    try {
-      final reviews = await _apiService.postReview(resto.id, name, review);
-      return reviews;
-    } on SocketException {
-      String _message = 'Periksa Koneksi Internet Anda!';
-      return PostReview(error: true, message: _message);
-    } catch (e) {
-      String _message = 'Error -> $e';
-      return PostReview(error: true, message: _message);
-    }
-  }
-
-  _submitReview(DetailRestaurantsProvider state, Resto resto, String name, String review) {
-
-    postingReview(resto, name, review).then((value) {
-      if (value.error) {
-        _scaffoldKey.currentState.hideCurrentSnackBar();
-        _scaffoldKey.currentState.showSnackBar(SnackBar(
-          content: Text('Periksa koneksi Internet Anda !')));
-      } else {
-        _nameCtrl.text = '';
-        _reviewCtrl.text = '';
-        state.fetchDetailRestaurant(resto);
-        _scaffoldKey.currentState.hideCurrentSnackBar();
-        _scaffoldKey.currentState.showSnackBar(SnackBar(
-            content: Text('Review Anda berhasil ditambahkan')));
-      }
-    });
+  _submitReview(ReviewRestaurantProvider state,
+      Resto resto, String name, String review) {
+    state.postReviewRestaurant(resto, name, review);
   }
 
   _buildReview(BuildContext context, CustomerReviews review) {
@@ -73,7 +44,7 @@ class DetailPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final detailState = Provider.of<DetailRestaurantsProvider>(context);
+    final reviewState = Provider.of<ReviewRestaurantProvider>(context);
     return Scaffold(
       key: _scaffoldKey,
       body: CustomScrollView(
@@ -288,16 +259,44 @@ class DetailPage extends StatelessWidget {
                     ],
                   ),
                   //NOTE: Review
-                  Consumer<DetailRestaurantsProvider>(
-                    builder: (context, state, _) {
-                      if (state.state == ResultState.Loading) {
+                  Consumer2<DetailRestaurantsProvider, ReviewRestaurantProvider>(
+                    builder: (context, stateDetail, stateReview, _) {
+//                        if (stateDetail.state == ResultState.Loading) {
+//                          return Center(child: CircularProgressIndicator());
+//                        } else if (stateDetail.state == ResultState.HasData) {
+//                          return ListView.separated(
+//                              padding: EdgeInsets.symmetric(vertical: 16.0),
+//                              physics: NeverScrollableScrollPhysics(),
+//                              shrinkWrap: true,
+//                              itemCount: stateDetail.result.restaurant.customerReviews.length,
+//                              separatorBuilder: (context, index) {
+//                                return Padding(
+//                                  padding: const EdgeInsets.symmetric(horizontal: 4.0),
+//                                  child: Divider(
+//                                      color: Colors.grey[300],
+//                                      thickness: 1,
+//                                      height: 0),
+//                                );
+//                              },
+//                              itemBuilder: (context, index) {
+//                                var review = stateDetail.result.restaurant.customerReviews[index];
+//                                return _buildReview(context, review);
+//                              });
+//                        } else if (stateDetail.state == ResultState.NoData) {
+//                          return Center(child: Text(stateDetail.message));
+//                        } else if (stateDetail.state == ResultState.Error) {
+//                          return Center(child: Text(stateDetail.message));
+//                        } else {
+//                          return Center(child: Text(''));
+//                        }
+                      if (stateReview.state == ResultState.Loading || stateDetail.state == ResultState.Loading) {
                         return Center(child: CircularProgressIndicator());
-                      } else if (state.state == ResultState.HasData) {
+                      } else if (stateReview.state == ResultState.HasData) {
                         return ListView.separated(
                             padding: EdgeInsets.symmetric(vertical: 16.0),
                             physics: NeverScrollableScrollPhysics(),
                             shrinkWrap: true,
-                            itemCount: state.result.restaurant.customerReviews.length,
+                            itemCount: stateReview.result.customerReviews.length,
                             separatorBuilder: (context, index) {
                               return Padding(
                                 padding: const EdgeInsets.symmetric(horizontal: 4.0),
@@ -308,13 +307,36 @@ class DetailPage extends StatelessWidget {
                               );
                             },
                             itemBuilder: (context, index) {
-                              var review = state.result.restaurant.customerReviews[index];
+                              var review = stateReview.result.customerReviews[index];
                               return _buildReview(context, review);
                             });
-                      } else if (state.state == ResultState.NoData) {
-                        return Center(child: Text(state.message));
-                      } else if (state.state == ResultState.Error) {
-                        return Center(child: Text(state.message));
+                      } else if (stateDetail.state == ResultState.HasData) {
+                        return ListView.separated(
+                            padding: EdgeInsets.symmetric(vertical: 16.0),
+                            physics: NeverScrollableScrollPhysics(),
+                            shrinkWrap: true,
+                            itemCount: stateDetail.result.restaurant.customerReviews.length,
+                            separatorBuilder: (context, index) {
+                              return Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                                child: Divider(
+                                    color: Colors.grey[300],
+                                    thickness: 1,
+                                    height: 0),
+                              );
+                            },
+                            itemBuilder: (context, index) {
+                              var review = stateDetail.result.restaurant.customerReviews[index];
+                              return _buildReview(context, review);
+                            });
+                      } else if (stateReview.state == ResultState.NoData) {
+                        return Center(child: Text(stateReview.message));
+                      } else if (stateDetail.state == ResultState.NoData) {
+                        return Center(child: Text(stateDetail.message));
+                      } else if (stateReview.state == ResultState.Error) {
+                        return Center(child: Text(stateReview.message));
+                      } else if (stateDetail.state == ResultState.Error) {
+                        return Center(child: Text(stateDetail.message));
                       } else {
                         return Center(child: Text(''));
                       }
@@ -372,7 +394,7 @@ class DetailPage extends StatelessWidget {
                             onPressed: () {
                               FocusScope.of(context).unfocus();
                               _submitReview(
-                                detailState,
+                                reviewState,
                                 restaurant,
                                 _nameCtrl.text,
                                 _reviewCtrl.text,
