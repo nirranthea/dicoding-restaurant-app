@@ -13,6 +13,10 @@ class RestaurantResult {
       restaurants: restaurantList,
     );
   }
+
+  Map<String, dynamic> toJson() => {
+    "restaurants": List<dynamic>.from(restaurants.map((resto) => resto.toJson())),
+  };
 }
 
 class Resto {
@@ -36,6 +40,15 @@ class Resto {
       rating: parsedJson['rating'].toDouble(),
     );
   }
+
+  Map<String, dynamic> toJson() => {
+    "id": id,
+    "name": name,
+    "description": description,
+    "pictureId": pictureId,
+    "city": city,
+    "rating": rating,
+  };
 }
 
 

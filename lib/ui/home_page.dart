@@ -1,15 +1,28 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:restaurant_app/common/navigation.dart';
 import 'package:restaurant_app/common/result_state.dart';
 import 'package:restaurant_app/data/api/api_service.dart';
 import 'package:restaurant_app/provider/restaurant_provider.dart';
 import 'package:restaurant_app/ui/detail_page.dart';
 import 'package:restaurant_app/ui/search_page.dart';
+import 'package:restaurant_app/ui/setting_page.dart';
+import 'package:restaurant_app/utils/background_service.dart';
+import 'package:restaurant_app/utils/notification_helper.dart';
 import '../data/model/response.dart';
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
 
   static const routeName = '/home_page';
+
+  @override
+  _HomePageState createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+
+  final NotificationHelper _notificationHelper = NotificationHelper();
+  final BackgroundService _service = BackgroundService();
 
   Widget _buildRestaurantItem(BuildContext context, Resto restaurant) {
     return ListTile(
@@ -43,10 +56,23 @@ class HomePage extends StatelessWidget {
         ],
       ),
       onTap: () {
-        Navigator.pushNamed(context, DetailPage.routeName,
-            arguments: restaurant);
+        Navigation.intentWithData(DetailPage.routeName, restaurant);
       },
     );
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    port.listen((_) async => await _service.someTask());
+    _notificationHelper.configureSelectNotificationSubject(
+        DetailPage.routeName);
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    selectNotificationSubject.close();
   }
 
   @override
@@ -76,13 +102,26 @@ class HomePage extends StatelessWidget {
                     subtitle: Text('Recommendation restaurant for you!',
                       style: Theme.of(context).textTheme.subtitle2,
                     ),
-                    trailing: IconButton(
-                      icon: Icon(Icons.search),
-                      iconSize: 24,
-                      color: Colors.black,
-                      onPressed: () {
-                        Navigator.pushNamed(context, SearchPage.routeName);
-                      },
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: <Widget>[
+                        IconButton(
+                          icon: Icon(Icons.search),
+                          iconSize: 24,
+                          color: Colors.black,
+                          onPressed: () {
+                            Navigation.intentNoData(SearchPage.routeName);
+                          },
+                        ),
+                        IconButton(
+                          icon: Icon(Icons.settings),
+                          iconSize: 24,
+                          color: Colors.black,
+                          onPressed: () {
+                            Navigation.intentNoData(SettingPage.routeName);
+                          },
+                        ),
+                      ],
                     ),
                   ),
                 ),
@@ -117,5 +156,4 @@ class HomePage extends StatelessWidget {
       ),
     );
   }
-
 }

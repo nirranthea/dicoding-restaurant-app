@@ -13,13 +13,13 @@ class _SplashPageState extends State<SplashPage> {
 
   @override
   void initState() {
+    super.initState();
     //NOTE: Redirect after several seconds
     Future.delayed(
         const Duration(seconds: 3),
             () => Navigator.pushReplacementNamed(context,
             HomePage.routeName)
     );
-    super.initState();
   }
 
   @override

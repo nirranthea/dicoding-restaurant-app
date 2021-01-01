@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:restaurant_app/common/navigation.dart';
 import 'package:restaurant_app/common/result_state.dart';
 import 'package:restaurant_app/data/api/api_service.dart';
 import 'package:restaurant_app/data/model/response.dart';
@@ -46,8 +47,7 @@ class SearchPage extends StatelessWidget {
         ],
       ),
       onTap: () {
-        Navigator.pushNamed(context, DetailPage.routeName,
-            arguments: restaurant);
+        Navigation.intentWithData(DetailPage.routeName, restaurant);
       },
     );
   }
