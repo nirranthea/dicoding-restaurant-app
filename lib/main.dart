@@ -6,13 +6,16 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:provider/provider.dart';
 import 'package:restaurant_app/common/navigation.dart';
 import 'package:restaurant_app/data/api/api_service.dart';
+import 'package:restaurant_app/data/db/database_helper.dart';
 import 'package:restaurant_app/data/preferences/preferences_helper.dart';
+import 'package:restaurant_app/provider/database_provider.dart';
 import 'package:restaurant_app/provider/detail_restaurant_provider.dart';
 import 'package:restaurant_app/provider/preferences_provider.dart';
 import 'package:restaurant_app/provider/restaurant_provider.dart';
 import 'package:restaurant_app/provider/review_restaurant_provider.dart';
 import 'package:restaurant_app/provider/scheduling_provider.dart';
 import 'package:restaurant_app/provider/search_restaurant_provider.dart';
+import 'package:restaurant_app/ui/favourite_page.dart';
 import 'package:restaurant_app/ui/search_page.dart';
 import 'package:restaurant_app/ui/setting_page.dart';
 import 'package:restaurant_app/ui/splash_page.dart';
@@ -71,6 +74,10 @@ class MyApp extends StatelessWidget {
           create: (_) => ReviewRestaurantProvider(
               apiService: ApiService()),
         ),
+        ChangeNotifierProvider<DatabaseProvider>(
+          create: (_) => DatabaseProvider(
+            databaseHelper: DatabaseHelper()),
+        ),
       ],
       child: MaterialApp(
         title: 'Restaurant App',
@@ -87,6 +94,7 @@ class MyApp extends StatelessWidget {
           DetailPage.routeName: (context) => DetailPage(
                 restaurant: ModalRoute.of(context).settings.arguments),
           SettingPage.routeName: (context) => SettingPage(),
+          FavouritePage.routeName: (context) => FavouritePage(),
         },
       ),
     );
