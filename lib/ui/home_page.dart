@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:restaurant_app/common/navigation.dart';
 import 'package:restaurant_app/common/result_state.dart';
 import 'package:restaurant_app/data/api/api_service.dart';
+import 'package:restaurant_app/provider/detail_restaurant_provider.dart';
 import 'package:restaurant_app/provider/restaurant_provider.dart';
 import 'package:restaurant_app/ui/detail_page.dart';
 import 'package:restaurant_app/ui/search_page.dart';
@@ -24,7 +25,7 @@ class _HomePageState extends State<HomePage> {
   final NotificationHelper _notificationHelper = NotificationHelper();
   final BackgroundService _service = BackgroundService();
 
-  Widget _buildRestaurantItem(BuildContext context, Resto restaurant) {
+  Widget _buildRestaurantItem(BuildContext context, Resto restaurant, DetailRestaurantsProvider detailState) {
     return ListTile(
       contentPadding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
       leading: Hero(
@@ -56,6 +57,7 @@ class _HomePageState extends State<HomePage> {
         ],
       ),
       onTap: () {
+        detailState.fetchDetailRestaurant(restaurant);
         Navigation.intentWithData(DetailPage.routeName, restaurant);
       },
     );
@@ -77,6 +79,7 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    final detailState = Provider.of<DetailRestaurantsProvider>(context);
     return Scaffold(
       body: SafeArea(
         child: Column(
@@ -139,7 +142,7 @@ class _HomePageState extends State<HomePage> {
                         itemCount: state.result.restaurants.length,
                         itemBuilder: (context, index) {
                           var restaurant = state.result.restaurants[index];
-                          return _buildRestaurantItem(context, restaurant);
+                          return _buildRestaurantItem(context, restaurant, detailState);
                         });
                   } else if (state.state == ResultState.NoData) {
                     return Center(child: Text(state.message));

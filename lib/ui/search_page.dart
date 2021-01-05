@@ -4,6 +4,7 @@ import 'package:restaurant_app/common/navigation.dart';
 import 'package:restaurant_app/common/result_state.dart';
 import 'package:restaurant_app/data/api/api_service.dart';
 import 'package:restaurant_app/data/model/response.dart';
+import 'package:restaurant_app/provider/detail_restaurant_provider.dart';
 import 'package:restaurant_app/provider/search_restaurant_provider.dart';
 
 import 'detail_page.dart';
@@ -15,7 +16,7 @@ class SearchPage extends StatelessWidget {
   final TextEditingController _searchCtrl = TextEditingController();
   final FocusNode _searchFcs = FocusNode();
 
-  Widget _buildRestaurantItem(BuildContext context, Resto restaurant) {
+  Widget _buildRestaurantItem(BuildContext context, Resto restaurant, DetailRestaurantsProvider detailState) {
     return ListTile(
       contentPadding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
       leading: Hero(
@@ -47,6 +48,7 @@ class SearchPage extends StatelessWidget {
         ],
       ),
       onTap: () {
+        detailState.fetchDetailRestaurant(restaurant);
         Navigation.intentWithData(DetailPage.routeName, restaurant);
       },
     );
@@ -55,6 +57,7 @@ class SearchPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final searchState = Provider.of<SearchRestaurantsProvider>(context);
+    final detailState = Provider.of<DetailRestaurantsProvider>(context);
     return Scaffold(
       body: SafeArea(
         child: Column(
@@ -126,7 +129,7 @@ class SearchPage extends StatelessWidget {
                           itemCount: state.result.restaurants.length,
                           itemBuilder: (context, index) {
                             var restaurant = state.result.restaurants[index];
-                            return _buildRestaurantItem(context, restaurant);
+                            return _buildRestaurantItem(context, restaurant, detailState);
                           });
                     } else if (state.state == ResultState.NoData) {
                       return Center(child: Container(width: 200, height:200, child: Image.asset('images/not_found.png', fit: BoxFit.contain)));

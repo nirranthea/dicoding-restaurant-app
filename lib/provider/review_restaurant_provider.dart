@@ -8,9 +8,8 @@ import 'package:restaurant_app/data/model/response.dart';
 
 class ReviewRestaurantProvider extends ChangeNotifier {
   final ApiService apiService;
-  final Resto resto;
 
-  ReviewRestaurantProvider({@required this.apiService, @required this.resto});
+  ReviewRestaurantProvider({@required this.apiService});
 
   PostReview _postReview;
   String _message = '';

@@ -34,7 +34,7 @@ class SettingPage extends StatelessWidget {
                     Container(
                       color: Colors.white60.withOpacity(0.85),
                       child: Padding(
-                        padding: EdgeInsets.only(bottom: 16.0),
+                        padding: EdgeInsets.only(bottom: 8.0),
                         child: ListTile(
                           title: Text('Setting',
                             style: Theme.of(context).textTheme.headline5.copyWith(color: Colors.black)),

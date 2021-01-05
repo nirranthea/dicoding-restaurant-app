@@ -63,6 +63,14 @@ class MyApp extends StatelessWidget {
             ),
           ),
         ),
+        ChangeNotifierProvider<DetailRestaurantsProvider>(
+          create: (_) => DetailRestaurantsProvider(
+              apiService: ApiService()),
+        ),
+        ChangeNotifierProvider<ReviewRestaurantProvider>(
+          create: (_) => ReviewRestaurantProvider(
+              apiService: ApiService()),
+        ),
       ],
       child: MaterialApp(
         title: 'Restaurant App',
@@ -76,22 +84,8 @@ class MyApp extends StatelessWidget {
           SplashPage.routeName: (context) => SplashPage(),
           HomePage.routeName: (context) => HomePage(),
           SearchPage.routeName: (context) => SearchPage(),
-          DetailPage.routeName: (context) => MultiProvider(
-            providers: [
-              ChangeNotifierProvider<DetailRestaurantsProvider>(
-                create: (_) => DetailRestaurantsProvider(
-                    apiService: ApiService(),
-                    resto: ModalRoute.of(context).settings.arguments),
-              ),
-              ChangeNotifierProvider<ReviewRestaurantProvider>(
-                create: (_) => ReviewRestaurantProvider(
-                    apiService: ApiService(),
-                    resto: ModalRoute.of(context).settings.arguments),
-              ),
-            ],
-            child: DetailPage(
+          DetailPage.routeName: (context) => DetailPage(
                 restaurant: ModalRoute.of(context).settings.arguments),
-          ),
           SettingPage.routeName: (context) => SettingPage(),
         },
       ),

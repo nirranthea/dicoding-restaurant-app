@@ -8,11 +8,8 @@ import 'package:restaurant_app/data/model/restaurant.dart';
 
 class DetailRestaurantsProvider extends ChangeNotifier {
   final ApiService apiService;
-  final Resto resto;
 
-  DetailRestaurantsProvider({@required this.apiService, @required this.resto}) {
-    fetchDetailRestaurant(resto);
-  }
+  DetailRestaurantsProvider({@required this.apiService});
 
   DetailRestaurant _detailRestaurant;
   String _message = '';
