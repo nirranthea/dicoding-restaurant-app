@@ -4,6 +4,7 @@ import 'package:restaurant_app/common/result_state.dart';
 import 'package:restaurant_app/data/api/api_service.dart';
 import 'package:restaurant_app/data/model/customer_reviews.dart';
 import 'package:restaurant_app/data/model/response.dart';
+import 'package:restaurant_app/provider/database_provider.dart';
 import 'package:restaurant_app/provider/detail_restaurant_provider.dart';
 import 'package:restaurant_app/provider/review_restaurant_provider.dart';
 
@@ -75,8 +76,34 @@ class DetailPage extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
                   SizedBox(height: 24),
-                  Text('${restaurant.name}',
-                    style: Theme.of(context).textTheme.headline5,
+                  Consumer<DatabaseProvider>(
+                    builder: (context, provider, child) {
+                      return FutureBuilder<bool>(
+                        future: provider.isBookmarked(restaurant.id),
+                        builder: (context, snapshot) {
+                          var isBookmarked = snapshot.data ?? false;
+                          return Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: <Widget>[
+                              Text('${restaurant.name}',
+                                style: Theme.of(context).textTheme.headline5,
+                              ),
+                              isBookmarked
+                                  ? IconButton(
+                                icon: Icon(Icons.thumb_up),
+                                color: Colors.green,
+                                onPressed: () => provider.removeBookmark(restaurant.id),
+                              )
+                                  : IconButton(
+                                icon: Icon(Icons.thumb_up),
+                                color: Colors.grey,
+                                onPressed: () => provider.addBookmark(restaurant),
+                              ),
+                            ],
+                          );
+                        },
+                      );
+                    },
                   ),
                   SizedBox(height: 8),
                   Row(
